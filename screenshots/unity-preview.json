@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/unity",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Augmented Alibi",
+      "hasCanvas": false,
+      "bodyTextLen": 4850,
+      "bodyTextHash": "d77f04dce2a41dda126e171bc8d180a70e2f211612eee624bb67ee57f2884268",
+      "bodyTextPrefix": "Back to case Unity build kit Exact hierarchy, Inspector slots, p",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/unity-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Augmented Alibi",
+      "hasCanvas": false,
+      "bodyTextLen": 4850,
+      "bodyTextHash": "d77f04dce2a41dda126e171bc8d180a70e2f211612eee624bb67ee57f2884268",
+      "bodyTextPrefix": "Back to case Unity build kit Exact hierarchy, Inspector slots, p",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/unity-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/unity-preview.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

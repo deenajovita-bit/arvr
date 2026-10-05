@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Augmented Alibi",
+      "hasCanvas": false,
+      "bodyTextLen": 15,
+      "bodyTextHash": "79fde3d0c118136e34543a83efeba7ba48e27509562250aa3ef80d59f8b25fa7",
+      "bodyTextPrefix": "Augmented Alibi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Augmented Alibi",
+      "hasCanvas": false,
+      "bodyTextLen": 15,
+      "bodyTextHash": "79fde3d0c118136e34543a83efeba7ba48e27509562250aa3ef80d59f8b25fa7",
+      "bodyTextPrefix": "Augmented Alibi",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0b0a;
+  --color-bg-elevated: #161412;
+  --color-bg-subtle: #1c1916;
+  --color-fg: #e8e2d6;
+  --color-fg-muted: #9a9286;
+  --color-fg-subtle: #6f685f;
+  --color-border: color-mix(in oklab, #e8e2d6 12%, transparent);
+  --color-border-strong: color-mix(in oklab, #e8e2d6 22%, transparent);
+  --color-accent: #d7d1c6;
+  --color-accent-fg: #0c0b0a;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --bg: var(--color-bg);
+  --bg-elevated: var(--color-bg-elevated);
+  --fg: var(--color-fg);
+  --fg-muted: var(--color-fg-muted);
+  --fg-subtle: var(--color-fg-subtle);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+.btn-primary {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  font-weight: 500;
+  padding: 0 16px;
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-fg);
+  padding: 0 16px;
+}
+
+.field {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  padding: 0 12px;
+}
+
+.hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-elevated);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stamp {
+  font-variant: small-caps;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:active {
+    transform: none;
+  }
+}
