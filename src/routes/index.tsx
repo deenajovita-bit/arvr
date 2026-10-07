@@ -11,8 +11,9 @@ function Home() {
 
   if (!client) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#0c0b0a] text-[#e8e2d6]">
-        <p className="font-[Cormorant_Garamond,serif] text-3xl tracking-[-0.03em]">Augmented Alibi</p>
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-[color:var(--color-bg)] text-[color:var(--color-fg)]">
+        <p className="kicker">Metropolitan Bureau</p>
+        <p className="font-display mt-3 text-4xl tracking-[-0.03em]">Opening the file</p>
       </main>
     );
   }

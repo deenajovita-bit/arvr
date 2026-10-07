@@ -11,6 +11,7 @@ export function GameClient() {
       {screen === "briefing" && <Briefing />}
       {screen === "play" && <PlayHud />}
       {screen === "result" && <Result />}
+      <div className="grain" />
     </main>
   );
 }

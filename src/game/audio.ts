@@ -1,7 +1,9 @@
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let sfx: GainNode | null = null;
+let amb: GainNode | null = null;
 let muted = false;
+let drone: OscillatorNode | null = null;
 
 export function unlockAudio() {
   if (!ctx) {
@@ -9,12 +11,30 @@ export function unlockAudio() {
     ctx = new AC({ latencyHint: "interactive" });
     master = ctx.createGain();
     sfx = ctx.createGain();
+    amb = ctx.createGain();
     sfx.connect(master);
+    amb.connect(master);
     master.connect(ctx.destination);
     master.gain.value = 0.7;
     sfx.gain.value = 0.9;
+    amb.gain.value = 0.035;
+    startDrone();
   }
   if (ctx.state === "suspended") void ctx.resume();
+}
+
+function startDrone() {
+  if (!ctx || !amb || drone) return;
+  const osc = ctx.createOscillator();
+  const f = ctx.createBiquadFilter();
+  osc.type = "triangle";
+  osc.frequency.value = 46;
+  f.type = "lowpass";
+  f.frequency.value = 180;
+  osc.connect(f);
+  f.connect(amb);
+  osc.start();
+  drone = osc;
 }
 
 export function setMuted(v: boolean) {
@@ -49,17 +69,16 @@ function beep(freq: number, dur: number, type: OscillatorType = "sine", gain = 0
 }
 
 export const sfxCollect = () => {
-  beep(520, 0.12, "triangle", 0.06);
-  beep(780, 0.18, "sine", 0.05);
+  beep(220, 0.08, "sine", 0.05);
+  beep(440, 0.16, "triangle", 0.04);
 };
 export const sfxOpen = () => {
-  beep(180, 0.28, "sawtooth", 0.04);
-  beep(90, 0.4, "square", 0.03);
+  beep(90, 0.4, "sawtooth", 0.035);
 };
-export const sfxWrong = () => beep(140, 0.25, "square", 0.05);
+export const sfxWrong = () => beep(110, 0.28, "square", 0.045);
 export const sfxWin = () => {
-  beep(392, 0.16, "triangle", 0.05);
-  setTimeout(() => beep(523, 0.18, "triangle", 0.05), 90);
-  setTimeout(() => beep(659, 0.28, "sine", 0.06), 180);
+  beep(262, 0.18, "triangle", 0.045);
+  setTimeout(() => beep(330, 0.2, "triangle", 0.045), 110);
+  setTimeout(() => beep(392, 0.32, "sine", 0.05), 220);
 };
 export const sfxTick = () => beep(880, 0.04, "square", 0.02);

@@ -7,7 +7,7 @@ export const CASE = {
   victimRole: "Archaeologist",
   missing: "The Crimson Eye",
   crimeWindow: "8:15 PM – 8:25 PM",
-  twist: "The thief did not leave through the door. They used a hidden passage behind a bookshelf.",
+  twist: "The study door was locked from the inside. If the thief left, it was not through that door.",
 } as const;
 
 export type SuspectId = "eleanor" | "marcus" | "victor" | "clara";
@@ -17,38 +17,43 @@ export const SUSPECTS: Record<
   {
     name: string;
     role: string;
+    initials: string;
+    photo: string;
     alibi: string;
     motive: string;
-    herring: string;
   }
 > = {
   eleanor: {
     name: "Eleanor Blake",
     role: "Daughter",
+    initials: "E.B.",
+    photo: "/textures/suspects/eleanor.jpg",
     alibi: "I was in the dining room preparing dinner.",
-    motive: "Learned her father planned to change his will.",
-    herring: "A half-written letter about the will sits in the dining room, but no physical trail places her in the study.",
+    motive: "Heard her father planned to change his will.",
   },
   marcus: {
     name: "Marcus Reed",
     role: "Museum curator",
-    alibi: "I was outside making a phone call.",
+    initials: "M.R.",
+    photo: "/textures/suspects/marcus.jpg",
+    alibi: "I was in the garden making a phone call.",
     motive: "Knew the gemstone's market value better than anyone.",
-    herring: "Phone records confirm a call at 8:18 PM. Motive without access.",
   },
   victor: {
     name: "Victor Stone",
     role: "Security guard",
-    alibi: "I was checking the security cameras.",
-    motive: "Cameras failed during the crime window.",
-    herring: "The log shows he was trying to restart the system. Incompetent, not the thief.",
+    initials: "V.S.",
+    photo: "/textures/suspects/victor.jpg",
+    alibi: "I was at the camera panel after the feed died.",
+    motive: "Had keys to every room, including the study.",
   },
   clara: {
     name: "Clara Wilson",
     role: "Research assistant",
+    initials: "C.W.",
+    photo: "/textures/suspects/clara.jpg",
     alibi: "I was organizing documents in the library.",
-    motive: "Access to the study and knowledge of the artifact.",
-    herring: "Her alibi collapses against the watch, prints, and passage.",
+    motive: "Catalogued the study shelves and handled the artifact daily.",
   },
 };
 
@@ -69,59 +74,78 @@ export const CLUES: {
   id: ClueId;
   name: string;
   points: number;
+  teaser: string;
   detail: string;
-  proves?: string;
+  proves: string;
+  photo?: string;
   requires?: ClueId;
 }[] = [
   {
     id: "fingerprint",
-    name: "Dust print on the blotter",
+    name: "Print on the blotter",
     points: 100,
-    detail: "Silver powder on the desk. The ridge pattern is later matched to Clara Wilson — she was at the table.",
-    proves: "Places Clara in the study.",
+    teaser: "Silver powder caught a print on the desk.",
+    detail:
+      "A left-hand print in forensic dust, still tacky. It is not Dr. Blake's. Match the ridges to a staff card.",
+    proves: "Someone besides the victim stood at this desk tonight.",
+    photo: "/textures/clues/fingerprint.jpg",
   },
   {
     id: "torn-note",
     name: "Torn scrap",
     points: 150,
-    detail: "Ink: “8:20 — behind the old books. Do not use the door. C.W.” The bookshelf is the way out.",
-    proves: "Clara knew the passage and signed the note.",
+    teaser: "A scrap of paper under the desk.",
+    detail:
+      "Ink: “8:20 — behind the old books. Do not use the door.” Signed C.W. A sequence is scrawled under it: 2 · 4 · 8 · 16 · ?",
+    proves: "The exit is the bookshelf. The writer used the initials C.W.",
+    photo: "/textures/clues/note.jpg",
   },
   {
     id: "footprints",
     name: "Mud on the rug",
     points: 100,
-    detail: "A trail of damp prints from the desk to the far bookshelf. Same path the thief took.",
-    proves: "Confirms the route to the hidden door.",
+    teaser: "Damp soil on the Persian rug.",
+    detail: "A trail of wet oxford prints from the desk toward the far bookshelf. Garden mud, not study dust.",
+    proves: "The thief crossed the room to the shelves, not the door.",
+    photo: "/textures/clues/boot.jpg",
   },
   {
     id: "camera",
     name: "Study camera log",
     points: 100,
-    detail: "Feed dies at 8:17. Victor Stone hammers restart until 8:19. He was stuck at the panel, not in the room.",
-    proves: "Clears Victor. The blackout was incompetence, not the theft.",
+    teaser: "The wall camera is still showing a log.",
+    detail:
+      "20:17 FEED DISABLED. 20:18–20:19 RESTART FAIL. Operator: V.STONE. He was at the panel the whole window.",
+    proves: "Victor was not in the study. The blackout was a failed restart, not a cover for the theft.",
   },
   {
     id: "watch",
     name: "Broken pocket watch",
     points: 300,
-    detail: "Glass cracked. Hands frozen at 8:22. Case engraved C.W. — Clara Wilson, in the study during the window.",
-    proves: "Time-stamps Clara at the crime.",
+    teaser: "Something metal under the shelf.",
+    detail:
+      "Glass cracked. Hands frozen at 8:22 — inside the crime window. The case is engraved C.W.",
+    proves: "Places the owner of C.W. in this room at 8:22.",
+    photo: "/textures/clues/watch.jpg",
   },
   {
     id: "passage",
     name: "Secret passage",
     points: 300,
-    detail: "The glowing volume swings the shelf. Only staff who catalogued these stacks would know the catch.",
-    proves: "Means of escape. Clara had that knowledge.",
+    teaser: "One volume on the lower shelf sits proud of the rest.",
+    detail:
+      "The fifth book on the lower shelf is the catch. The wall swings. Only someone who catalogued these stacks would know.",
+    proves: "The locked-door problem is solved. The thief had inside knowledge of the shelves.",
     requires: "torn-note",
   },
   {
     id: "key",
     name: "Stash in the wall",
     points: 200,
-    detail: "A brass key, a glove, a pawn receipt, and a photo of the Crimson Eye. The gem was already spoken for.",
-    proves: "Motive made concrete — she had a buyer.",
+    teaser: "A glint in the dark behind the shelf.",
+    detail: "A brass key, a pawn ticket dated today, and a photo of the Crimson Eye. The gem already had a buyer.",
+    proves: "This was planned. The thief needed a way back through the wall.",
+    photo: "/textures/clues/key.jpg",
     requires: "passage",
   },
 ];

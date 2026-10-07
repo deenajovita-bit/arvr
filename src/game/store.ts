@@ -21,6 +21,7 @@ type Store = {
   score: number;
   clues: ClueId[];
   nearClue: ClueId | null;
+  inspecting: ClueId | null;
   passageOpen: boolean;
   patternSolved: boolean;
   matchingSolved: boolean;
@@ -32,6 +33,7 @@ type Store = {
   startedAt: number;
   setNearClue: (id: ClueId | null) => void;
   collect: (id: ClueId) => boolean;
+  closeInspect: () => void;
   tryOpenPassage: () => void;
   tick: (dt: number) => void;
   useHint: () => void;
@@ -50,12 +52,17 @@ function has(list: ClueId[], id: ClueId) {
   return list.includes(id);
 }
 
+function canCharge(s: { clues: ClueId[]; matchingSolved: boolean }) {
+  return PROOF_CLUES.every((p) => has(s.clues, p)) && s.matchingSolved;
+}
+
 export const useGame = create<Store>((set, get) => ({
   screen: "menu",
   timeLeft: CASE.timeLimit,
   score: 0,
   clues: [],
   nearClue: null,
+  inspecting: null,
   passageOpen: false,
   patternSolved: false,
   matchingSolved: false,
@@ -70,6 +77,8 @@ export const useGame = create<Store>((set, get) => ({
 
   setNotice: (msg) => set({ notice: msg }),
 
+  closeInspect: () => set({ inspecting: null }),
+
   collect: (id) => {
     const s = get();
     if (s.clues.includes(id) || s.screen !== "play") return false;
@@ -80,15 +89,18 @@ export const useGame = create<Store>((set, get) => ({
       return false;
     }
     const next = [...s.clues, id];
-    const proofReady = PROOF_CLUES.every((p) => next.includes(p));
     sfxCollect();
+    const follow =
+      id === "torn-note"
+        ? "Read the scrap, then finish the sequence in Puzzles."
+        : id === "watch"
+          ? "The initials are on the case. Open Puzzles and match them."
+          : def.teaser;
     set({
       clues: next,
       score: s.score + def.points,
-      matchingSolved: id === "watch" ? true : s.matchingSolved,
-      notice: proofReady
-        ? `Evidence logged: ${def.name}. You can prove Clara Wilson.`
-        : `Evidence logged: ${def.name}`,
+      inspecting: id,
+      notice: follow,
     });
     return true;
   },
@@ -97,7 +109,14 @@ export const useGame = create<Store>((set, get) => ({
     const s = get();
     if (s.passageOpen) return;
     if (!has(s.clues, "torn-note")) {
-      set({ notice: "The bookshelf will not yield. You are missing a clue." });
+      set({ notice: "The shelf will not move. Something on paper is missing." });
+      return;
+    }
+    if (!s.patternSolved) {
+      set({
+        notice: "The note has a sequence. Solve it in Puzzles — that number is the catch.",
+        inspecting: "torn-note",
+      });
       return;
     }
     sfxOpen();
@@ -106,7 +125,8 @@ export const useGame = create<Store>((set, get) => ({
       passageOpen: true,
       clues: already ? s.clues : [...s.clues, "passage"],
       score: already ? s.score : s.score + 300,
-      notice: "Secret passage opened.",
+      inspecting: "passage",
+      notice: "The fifth book was the latch. The wall is open.",
     });
   },
 
@@ -129,13 +149,20 @@ export const useGame = create<Store>((set, get) => ({
   useHint: () => {
     const s = get();
     if (s.screen !== "play") return;
-    const missing = CLUES.filter((c) => !s.clues.includes(c.id));
-    const hint =
-      missing[0]?.id === "passage"
-        ? "Scan the bookshelf after you have the torn note."
-        : missing[0]
-          ? `Look closer near: ${missing[0].name}.`
-          : "You have the evidence. Accuse when ready.";
+    let hint = "You have the evidence. Match C.W., then accuse.";
+    if (!has(s.clues, "torn-note")) {
+      hint = "Look under the desk for paper.";
+    } else if (!s.patternSolved) {
+      hint = "The scrap doubles each time: 2, 4, 8, 16, …";
+    } else if (!s.passageOpen) {
+      hint = "Count five books from the left on the lower shelf.";
+    } else if (!has(s.clues, "watch")) {
+      hint = "Metal glints on the floor by the shelves.";
+    } else if (!s.matchingSolved) {
+      hint = "C.W. — check each suspect's initials.";
+    } else if (!has(s.clues, "fingerprint")) {
+      hint = "Dust the blotter on the desk.";
+    }
     set({
       hintUsed: true,
       score: Math.max(0, s.score - HINT_COST),
@@ -149,43 +176,47 @@ export const useGame = create<Store>((set, get) => ({
       set({
         patternSolved: true,
         score: s.score + 200,
-        notice: "Pattern confirmed. The note's cipher checks out.",
+        notice: "32. Fifth number — the fifth book on the lower shelf is the latch.",
       });
       sfxCollect();
       return true;
     }
     sfxWrong();
-    set({ notice: "That sequence is wrong." });
+    set({ notice: "That number is wrong. Look at the scrap again." });
     return false;
   },
 
   solveMatching: (ok) => {
     const s = get();
+    if (!has(s.clues, "watch")) {
+      set({ notice: "Find the pocket watch first. The initials are on the case." });
+      return;
+    }
     if (ok) {
       set({
         matchingSolved: true,
         score: s.score + 250,
-        notice: "Evidence board aligned.",
+        notice: "C.W. is Clara Wilson. The watch puts her in the study at 8:22.",
       });
       sfxCollect();
     } else {
       sfxWrong();
       set({
         score: Math.max(0, s.score - 50),
-        notice: "Incorrect pairing. Re-read the watch and prints.",
+        notice: "Those initials do not match. Read the staff cards.",
       });
     }
   },
 
   accuse: (id) => {
     const s = get();
-    const ready = PROOF_CLUES.every((p) => has(s.clues, p));
-    if (!ready) {
-      const missing = PROOF_CLUES.filter((p) => !has(s.clues, p))
-        .map((p) => CLUES.find((c) => c.id === p)?.name)
-        .filter(Boolean)
-        .join("; ");
-      set({ notice: `Not enough to charge anyone. Still need: ${missing}.` });
+    if (!canCharge(s)) {
+      const missing: string[] = [];
+      if (!has(s.clues, "fingerprint")) missing.push("the blotter print");
+      if (!has(s.clues, "watch")) missing.push("the watch");
+      if (!has(s.clues, "passage")) missing.push("the passage");
+      if (!s.matchingSolved) missing.push("a match for the initials C.W.");
+      set({ notice: `Not enough to charge. Still need: ${missing.join("; ")}.` });
       return;
     }
     const correct = id === CORRECT_SUSPECT;
@@ -202,6 +233,7 @@ export const useGame = create<Store>((set, get) => ({
         score,
         screen: "result",
         failReason: null,
+        inspecting: null,
       });
     } else {
       sfxWrong();
@@ -211,6 +243,7 @@ export const useGame = create<Store>((set, get) => ({
         score: Math.max(0, score - 300),
         screen: "result",
         failReason: "Wrong accusation. The true thief walks free.",
+        inspecting: null,
       });
     }
   },
@@ -224,6 +257,7 @@ export const useGame = create<Store>((set, get) => ({
       score: 0,
       clues: [],
       nearClue: null,
+      inspecting: null,
       passageOpen: false,
       patternSolved: false,
       matchingSolved: false,
@@ -231,7 +265,7 @@ export const useGame = create<Store>((set, get) => ({
       solved: false,
       failReason: null,
       hintUsed: false,
-      notice: "Walk the study. Clues sit on the desk, rug, and shelves — press E when close.",
+      notice: "Walk the study. When something looks out of place, step close and collect it.",
       startedAt: performance.now(),
     }),
 
@@ -242,6 +276,7 @@ export const useGame = create<Store>((set, get) => ({
       score: 0,
       clues: [],
       nearClue: null,
+      inspecting: null,
       passageOpen: false,
       patternSolved: false,
       matchingSolved: false,

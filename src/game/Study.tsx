@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useGame } from "./store";
 import type { ClueId } from "./case";
-import { makeCamLog, makeNoteMap, makeWatchFace } from "./clueArt";
+import { makeCamLog } from "./clueArt";
 
 export const CLUE_POS: Record<ClueId, [number, number, number]> = {
   fingerprint: [0.55, 0.92, -1.15],
@@ -189,7 +189,6 @@ export function Study() {
           <primitive object={mats.darkWood} attach="material" />
         </mesh>
       ))}
-      {/* Crown molding */}
       <mesh position={[0, 3.22, -5.42]}>
         <boxGeometry args={[10.1, 0.12, 0.14]} />
         <primitive object={mats.darkWood} attach="material" />
@@ -228,7 +227,6 @@ export function Study() {
 
       <Window maps={maps} brass={mats.brass} velvet={mats.velvet} />
 
-      {/* Desk */}
       <group position={[0, 0, -1.1]}>
         <RoundedBox args={[2.62, 0.08, 1.18]} radius={0.02} smoothness={4} position={[0, 0.74, 0]} castShadow receiveShadow>
           <primitive object={mats.wood} attach="material" />
@@ -250,7 +248,6 @@ export function Study() {
           <boxGeometry args={[2.45, 0.08, 0.98]} />
           <primitive object={mats.darkWood} attach="material" />
         </mesh>
-        {/* Lamp */}
         <mesh position={[0.92, 0.86, -0.28]} castShadow>
           <cylinderGeometry args={[0.08, 0.12, 0.1, 20]} />
           <primitive object={mats.brass} attach="material" />
@@ -286,7 +283,6 @@ export function Study() {
         </mesh>
       </group>
 
-      {/* Leather chair */}
       <group position={[0, 0, 0.12]}>
         <RoundedBox args={[0.66, 0.12, 0.62]} radius={0.04} position={[0, 0.44, 0]} castShadow>
           <primitive object={mats.leather} attach="material" />
@@ -312,7 +308,6 @@ export function Study() {
         ))}
       </group>
 
-      {/* Bookshelf */}
       <group position={[0.1, 1.35, -4.85]}>
         <RoundedBox args={[3.55, 2.78, 0.52]} radius={0.02} castShadow receiveShadow>
           <primitive object={mats.darkWood} attach="material" />
@@ -359,7 +354,6 @@ export function Study() {
         )}
       </group>
 
-      {/* Sideboard + globe */}
       <group position={[-4.15, 0, 2.2]}>
         <RoundedBox args={[1.18, 0.86, 1.58]} radius={0.025} position={[0, 0.43, 0]} castShadow receiveShadow>
           <primitive object={mats.wood} attach="material" />
@@ -378,7 +372,6 @@ export function Study() {
         </mesh>
       </group>
 
-      {/* Fireplace */}
       <group position={[5.0, 0.9, 0.4]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[0.32, 1.85, 1.85]} />
@@ -395,7 +388,6 @@ export function Study() {
         <FireGlow />
       </group>
 
-      {/* Portrait */}
       <mesh position={[3.15, 2.08, -5.44]} castShadow>
         <boxGeometry args={[1.22, 0.98, 0.07]} />
         <primitive object={mats.darkWood} attach="material" />
@@ -405,7 +397,6 @@ export function Study() {
         <meshStandardMaterial map={maps.painting} roughness={0.62} metalness={0} />
       </mesh>
 
-      {/* Wall camera */}
       <group position={[4.85, 2.2, -2.2]}>
         <mesh castShadow>
           <boxGeometry args={[0.16, 0.1, 0.26]} />
@@ -575,56 +566,47 @@ function Clues({
   passageOpen: boolean;
   near: ClueId | null;
 }) {
-  const prints = useTexture("/textures/fingerprint.jpg");
-  const mud = useTexture("/textures/footprint.jpg");
-  const note = useMemo(() => makeNoteMap(), []);
-  const face = useMemo(() => makeWatchFace(), []);
+  const maps = useTexture({
+    prints: "/textures/clues/fingerprint.jpg",
+    mud: "/textures/clues/boot.jpg",
+    note: "/textures/clues/note.jpg",
+    watch: "/textures/clues/watch.jpg",
+    key: "/textures/clues/key.jpg",
+  });
   const log = useMemo(() => makeCamLog(), []);
   useLayoutEffect(() => {
-    for (const t of [prints, mud]) {
+    for (const t of Object.values(maps)) {
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = 8;
     }
-  }, [prints, mud]);
+  }, [maps]);
 
   return (
     <group>
       {!clues.includes("fingerprint") && (
         <group position={CLUE_POS.fingerprint}>
-          <mesh rotation={[-Math.PI / 2, 0, 0.15]} receiveShadow>
-            <circleGeometry args={[0.11, 28]} />
-            <meshStandardMaterial map={prints} roughness={0.7} metalness={0.05} />
+          <mesh rotation={[-Math.PI / 2, 0, 0.12]} receiveShadow>
+            <planeGeometry args={[0.28, 0.28]} />
+            <meshStandardMaterial map={maps.prints} roughness={0.78} metalness={0.04} />
           </mesh>
           <GlowRing on={near === "fingerprint"} />
         </group>
       )}
       {!clues.includes("torn-note") && (
         <group position={CLUE_POS["torn-note"]}>
-          <mesh rotation={[-Math.PI / 2, 0, 0.42]} castShadow>
-            <planeGeometry args={[0.34, 0.22]} />
-            <meshStandardMaterial map={note} roughness={0.92} side={THREE.DoubleSide} />
+          <mesh rotation={[-Math.PI / 2, 0, 0.38]} castShadow>
+            <planeGeometry args={[0.38, 0.28]} />
+            <meshStandardMaterial map={maps.note} roughness={0.92} side={THREE.DoubleSide} />
           </mesh>
           <GlowRing on={near === "torn-note"} />
         </group>
       )}
-      {!clues.includes("footprints") && <Footprints hot={near === "footprints"} map={mud} />}
+      {!clues.includes("footprints") && <Footprints hot={near === "footprints"} map={maps.mud} />}
       {!clues.includes("watch") && (
-        <group position={CLUE_POS.watch} rotation={[0.15, 0.4, 0.2]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.048, 0.01, 12, 28]} />
-            <meshStandardMaterial color="#c9b068" metalness={0.85} roughness={0.22} />
-          </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
-            <circleGeometry args={[0.042, 28]} />
-            <meshStandardMaterial map={face} roughness={0.35} metalness={0.15} />
-          </mesh>
-          <mesh position={[0.055, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-            <torusGeometry args={[0.02, 0.006, 8, 16]} />
-            <meshStandardMaterial color="#c9b068" metalness={0.85} roughness={0.22} />
-          </mesh>
-          <mesh position={[0, -0.012, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.046, 20]} />
-            <meshStandardMaterial color="#8a7040" metalness={0.7} roughness={0.4} />
+        <group position={CLUE_POS.watch}>
+          <mesh rotation={[-Math.PI / 2, 0, 0.35]} receiveShadow>
+            <planeGeometry args={[0.28, 0.28]} />
+            <meshStandardMaterial map={maps.watch} roughness={0.45} metalness={0.2} />
           </mesh>
           <GlowRing on={near === "watch"} />
         </group>
@@ -632,11 +614,11 @@ function Clues({
       {!clues.includes("camera") && (
         <group position={CLUE_POS.camera}>
           <mesh rotation={[0, -Math.PI / 2, 0]} castShadow>
-            <planeGeometry args={[0.42, 0.26]} />
-            <meshStandardMaterial map={log} roughness={0.45} emissive="#12332e" emissiveIntensity={0.35} />
+            <planeGeometry args={[0.46, 0.28]} />
+            <meshStandardMaterial map={log} roughness={0.4} emissive="#0d2a24" emissiveIntensity={0.55} />
           </mesh>
           <mesh position={[-0.02, 0, 0]}>
-            <boxGeometry args={[0.03, 0.28, 0.46]} />
+            <boxGeometry args={[0.03, 0.3, 0.5]} />
             <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.4} />
           </mesh>
           <GlowRing on={near === "camera"} />
@@ -644,17 +626,9 @@ function Clues({
       )}
       {passageOpen && !clues.includes("key") && (
         <group position={CLUE_POS.key}>
-          <mesh rotation={[0.2, 0.4, Math.PI / 2]} castShadow>
-            <cylinderGeometry args={[0.012, 0.012, 0.14, 10]} />
-            <meshStandardMaterial color="#d7b45a" metalness={0.82} roughness={0.28} />
-          </mesh>
-          <mesh position={[0.08, 0.01, 0]} rotation={[0.2, 0.4, 0]} castShadow>
-            <torusGeometry args={[0.028, 0.008, 8, 16]} />
-            <meshStandardMaterial color="#d7b45a" metalness={0.82} roughness={0.28} />
-          </mesh>
-          <mesh position={[0.02, 0.002, 0.05]} rotation={[-Math.PI / 2, 0, 0.3]} castShadow>
-            <planeGeometry args={[0.16, 0.1]} />
-            <meshStandardMaterial color="#efe6d4" roughness={0.9} />
+          <mesh rotation={[-Math.PI / 2, 0, 0.2]} receiveShadow>
+            <planeGeometry args={[0.32, 0.22]} />
+            <meshStandardMaterial map={maps.key} roughness={0.4} metalness={0.35} />
           </mesh>
           <GlowRing on={near === "key"} />
         </group>
@@ -665,12 +639,12 @@ function Clues({
 
 function GlowRing({ on }: { on: boolean }) {
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-      <ringGeometry args={[0.12, 0.16, 24]} />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
+      <ringGeometry args={[0.14, 0.18, 24]} />
       <meshBasicMaterial
         color="#d4af37"
         transparent
-        opacity={on ? 0.85 : 0.18}
+        opacity={on ? 0.85 : 0.16}
         depthWrite={false}
         toneMapped={false}
       />
@@ -691,14 +665,8 @@ function Footprints({ hot, map }: { hot: boolean; map: THREE.Texture }) {
     <group>
       {spots.map((p, i) => (
         <mesh key={i} position={[p[0], p[1], p[2]]} rotation={[-Math.PI / 2, 0, p[3]]}>
-          <planeGeometry args={[0.14, 0.32]} />
-          <meshStandardMaterial
-            map={map}
-            transparent
-            opacity={hot ? 0.95 : 0.82}
-            roughness={1}
-            depthWrite={false}
-          />
+          <planeGeometry args={[0.16, 0.34]} />
+          <meshStandardMaterial map={map} roughness={1} transparent opacity={hot ? 0.95 : 0.82} depthWrite={false} />
         </mesh>
       ))}
       <GlowRing on={hot} />
