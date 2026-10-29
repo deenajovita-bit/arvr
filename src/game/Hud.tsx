@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import {
   BookOpen,
   Clock,
@@ -90,9 +89,6 @@ export function Menu() {
       </div>
       <div className="letterbox bottom-0 pointer-events-auto flex items-center justify-between px-6 text-[10px] tracking-[0.2em] text-[color:var(--fg-subtle)] uppercase">
         <span>Blackwood Mansion</span>
-        <Link to="/unity" className="hover:text-[color:var(--fg)]">
-          Field kit
-        </Link>
       </div>
     </div>
   );
